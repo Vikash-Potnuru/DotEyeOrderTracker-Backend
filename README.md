@@ -1,6 +1,13 @@
 # DotEye Order Tracker Backend
 
-Node.js + Express + MongoDB Atlas + Mongoose + JWT + Socket.io backend for the DotEye Labs assessment.
+Node.js + Express + MongoDB Atlas + Mongoose + JWT + Socket.IO backend for the
+DotEye Order Tracker application.
+
+Production backend: https://doteyeordertracker-backend.onrender.com
+
+The backend is deployed as one Render Web Service. Express REST endpoints and
+Socket.IO run on the same persistent Node.js HTTP server. No separate
+Socket.IO deployment is required.
 
 ## Setup
 
@@ -17,6 +24,8 @@ JWT_SECRET=your_long_random_secret
 CLIENT_URL=http://localhost:5173
 JWT_EXPIRES_IN=7d
 ```
+
+`PORT` is used locally. Render supplies its own `PORT` automatically.
 
 Run development server:
 
@@ -38,21 +47,43 @@ In Render, add these environment variables:
 - `JWT_EXPIRES_IN`: for example, `7d`.
 - `CLIENT_URL`: the exact deployed frontend URL, without a trailing slash.
 
-MongoDB Atlas must allow connections from Render. For a first setup, Atlas
-Network Access can temporarily allow `0.0.0.0/0`; use database credentials and
-least-privilege access, and review this rule before production hardening.
+The production frontend is deployed on Vercel. Set the following in Render:
 
-Deploy the backend first and verify `https://your-backend.onrender.com/api`.
-Then set the frontend API base URL and Socket.io URL to that same backend URL:
-
-```js
-const API_URL = 'https://your-backend.onrender.com'
-const socket = io(API_URL, {auth: {token}})
+```env
+CLIENT_URL=https://dot-eye-order-tracker-front-end.vercel.app
 ```
 
-After the frontend has its public Netlify URL, set that URL as `CLIENT_URL` in
-Render and redeploy the backend. CORS does not block the initial backend
-deployment; it only controls which browser origins may call it.
+Use the exact frontend origin without a trailing slash, then redeploy the
+backend. CORS does not change the API routes; it controls which browser origin
+may call them.
+
+MongoDB Atlas must allow connections from Render. For an initial showcase,
+Atlas Network Access may temporarily allow `0.0.0.0/0`; use database
+credentials with least privilege and restrict access later when appropriate.
+
+### Production URLs
+
+- REST base URL: `https://doteyeordertracker-backend.onrender.com/api`
+- Socket.IO URL: `https://doteyeordertracker-backend.onrender.com`
+- Health check: `https://doteyeordertracker-backend.onrender.com/api`
+
+Example frontend configuration:
+
+```env
+VITE_API_BASE_URL=https://doteyeordertracker-backend.onrender.com/api
+VITE_SOCKET_URL=https://doteyeordertracker-backend.onrender.com
+```
+
+Socket.IO clients authenticate with the same JWT returned by the login API:
+
+```js
+io('https://doteyeordertracker-backend.onrender.com', {
+	auth: {token},
+})
+```
+
+The free Render instance may sleep after inactivity, so the first request or
+Socket.IO connection can take several seconds while the service wakes up.
 
 Seed sample data:
 
