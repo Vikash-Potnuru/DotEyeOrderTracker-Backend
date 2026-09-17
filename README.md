@@ -6,9 +6,7 @@ DotEye Order Tracker application.
 Production backend: https://doteyeordertracker-backend.onrender.com
 
 The backend is deployed as one Render Web Service. Express REST endpoints and
-Socket.IO run on the same persistent Node.js HTTP server. No separate
-Socket.IO deployment is required.
-
+Socket.IO run on the same persistent Node.js HTTP server.s
 ## Setup
 
 ```bash
